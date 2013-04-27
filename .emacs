@@ -89,11 +89,10 @@
 ; HasOffers local style hack
 ;
 
-
 (require 'php-mode)
 (setq php-mode-force-pear t)
-(add-hook 'php-mode-user-hook
+(add-hook 'php-mode-hook
       '(lambda ()
          (setq indent-tabs-mode t)
          (setq tab-width 4)
-         (setq c-basic-indent 4)))
+         (setq c-basic-offset 4)))
