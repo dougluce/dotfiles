@@ -96,3 +96,86 @@
          (setq indent-tabs-mode t)
          (setq tab-width 4)
          (setq c-basic-offset 4)))
+
+(add-hook 'php-mode-hook 'local-keybindings)
+(add-hook 'python-mode-hook 'local-keybindings)
+
+(defun local-keybindings ()
+  (local-set-key "\C-c\C-f" 'ftf-find-file)
+  (local-set-key "\C-c\r" 'magit-status))
+
+
+(global-set-key "\C-c\C-f" 'ftf-find-file)
+(global-set-key "\C-cf" 'ftf-find-file)
+
+
+;; Dammit.  Make both ^h and del be backspace.  I'm tired of dealing with
+;; this crap.
+(let ((the-table (make-string 128 0)))
+  (let ((i 0))
+    (while (< i 128)
+      (aset the-table i i)
+      (setq i (1+ i))))
+;; Swap ^H and DEL
+  (aset the-table ?\177 ?\177)
+  (aset the-table ?\^h ?\177)
+  (setq keyboard-translate-table the-table))
+
+
+
+(defun pp () 
+  (interactive)
+  (insert "import pprint\npp = pprint.PrettyPrinter(indent=4, stream=sys.stderr)\npp.pprint"))
+
+
+
+
+
+
+(require 'quickrun)
+
+(defface phpunit-pass
+  '((t (:foreground "white" :background "green" :weight bold))) nil)
+(defface phpunit-fail
+  '((t (:foreground "white" :background "red" :weight bold))) nil)
+
+(defun quickrun/phpunit-outputter ()
+  (save-excursion
+    (goto-char (point-min))
+    (while (replace-regexp "^M" "")
+      nil))
+  (highlight-phrase "^OK.*$" 'phpunit-pass)
+  (highlight-phrase "^FAILURES.*$" 'phpunit-fail))
+
+(quickrun-add-command "phpunit" '((:command . "phpunit")
+                                  (:exec . "%c %s")
+                                  (:outputter . quickrun/phpunit-outputter)))
+
+
+(require 'geben)
+
+(defun geben-release ()
+  (interactive)
+  (geben-stop)
+  (dolist (session geben-sessions)
+    (ignore-errors
+      (geben-session-release session))))
+
+(defun geben-down ()
+  (interactive)
+  (dbgp-stop 9090))
+
+(defun geben-halt ()
+  (interactive)
+  (dbgp-stop 9090))
+
+
+(defun brk () 
+  (interactive)
+  (insert "xdebug_break();"))
+
+(defun what-face (pos)
+  (interactive "d")
+  (let ((face (or (get-char-property (point) 'read-face-name)
+                  (get-char-property (point) 'face))))
+    (if face (message "Face: %s" face) (message "No face at %d" pos))))
